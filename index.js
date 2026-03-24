@@ -3,6 +3,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 const Habit = require('./models/Habit');
 const User = require('./models/User');
@@ -16,12 +17,31 @@ app.use(express.json());
 // Conexión a MongoDB Atlas
 mongoose
   .connect(process.env.MONGO_URI)
-  .then(() => console.log('Conectado a MongoDB Atlas 🚀'))
+  .then(() => console.log('Conectado a MongoDB Atlas'))
   .catch((err) => console.error('Error de conexión:', err));
+
+// Middleware para verificar JWT
+const verifyToken = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ message: 'Acceso denegado. Token requerido.' });
+  }
+
+  const token = authHeader.split(' ')[1];
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded;
+    next();
+  } catch (error) {
+    return res.status(403).json({ message: 'Token inválido.' });
+  }
+};
 
 // Ruta de prueba
 app.get('/', (req, res) => {
-  res.send('Servidor funcionando correctamente 🚀');
+  res.send('Servidor funcionando correctamente');
 });
 
 /**
@@ -29,7 +49,7 @@ app.get('/', (req, res) => {
  */
 
 // Crear hábito
-app.post('/habits', async (req, res) => {
+app.post('/habits', verifyToken, async (req, res) => {
   try {
     const { name } = req.body;
 
@@ -51,7 +71,7 @@ app.post('/habits', async (req, res) => {
 });
 
 // Obtener todos los hábitos
-app.get('/habits', async (req, res) => {
+app.get('/habits', verifyToken, async (req, res) => {
   try {
     const habits = await Habit.find().sort({ createdAt: -1 });
     return res.json(habits);
@@ -64,7 +84,7 @@ app.get('/habits', async (req, res) => {
 });
 
 // Actualizar nombre del hábito
-app.put('/habits/:id', async (req, res) => {
+app.put('/habits/:id', verifyToken, async (req, res) => {
   try {
     const { id } = req.params;
     const { name } = req.body;
@@ -88,7 +108,7 @@ app.put('/habits/:id', async (req, res) => {
 });
 
 // Marcar hábito como realizado
-app.put('/habits/:id/done', async (req, res) => {
+app.put('/habits/:id/done', verifyToken, async (req, res) => {
   try {
     const { id } = req.params;
     const habit = await Habit.findById(id);
@@ -138,7 +158,7 @@ app.put('/habits/:id/done', async (req, res) => {
 });
 
 // Eliminar hábito
-app.delete('/habits/:id', async (req, res) => {
+app.delete('/habits/:id', verifyToken, async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -214,7 +234,16 @@ app.post('/auth/login', async (req, res) => {
       return res.status(400).json({ message: 'Contraseña incorrecta.' });
     }
 
-    return res.json({ message: 'Login exitoso.' });
+    const token = jwt.sign(
+      { id: user._id, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
+    );
+
+    return res.json({
+      message: 'Login exitoso.',
+      token,
+    });
   } catch (error) {
     return res.status(500).json({
       message: 'Error en login.',
