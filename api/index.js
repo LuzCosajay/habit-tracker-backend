@@ -11,7 +11,13 @@ const jwt = require('jsonwebtoken');
 
 const app = express();
 
-app.use(cors());
+app.use(
+  cors({
+    origin: "https://habit-tracker-frontend-olive-delta.vercel.app",
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 app.use(express.json());
 
 let isConnected = false;
