@@ -133,4 +133,6 @@ app.put('/habits/:id/done', verifyToken, async (req, res) => {
   res.json({ message: 'Actualizado', habit });
 });
 
-module.exports = app;
+module.exports = (req, res) => {
+  app(req, res);
+};
