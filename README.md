@@ -1,5 +1,5 @@
-Habit Tracker – Semana 6
-
+# Habit Tracker - Frontend (Semana 6)
+---------------------------------------------------
 Descripción:
 Este proyecto consiste en una aplicación web para gestionar hábitos diarios, inspirada en el concepto del libro Hábitos Atómicos. La idea principal es que el usuario pueda crear hábitos, darles seguimiento día a día y visualizar su progreso hasta alcanzar una meta de 66 días.
 
