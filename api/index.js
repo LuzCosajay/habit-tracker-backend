@@ -13,7 +13,17 @@ const app = express();
 
 app.use(
   cors({
-    origin: "https://habit-tracker-frontend-olive-delta.vercel.app",
+    origin: function (origin, callback) {
+      if (
+        !origin ||
+        origin === "http://localhost:3000" ||
+        origin.endsWith(".vercel.app")
+      ) {
+        callback(null, true);
+      } else {
+        callback(new Error("No permitido por CORS"));
+      }
+    },
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
