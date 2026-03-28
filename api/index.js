@@ -69,7 +69,7 @@ app.get('/', async (req, res) => {
 });
 
 // AUTH
-app.post('/auth/register', async (req, res) => {
+app.post('/api/auth/register', async (req, res) => {
   try {
     await connectDB();
 
@@ -99,7 +99,7 @@ app.post('/auth/register', async (req, res) => {
   }
 });
 
-app.post('/auth/login', async (req, res) => {
+app.post('/api/auth/login', async (req, res) => {
   try {
     await connectDB();
 
@@ -133,7 +133,7 @@ app.post('/auth/login', async (req, res) => {
 });
 
 // HABITS
-app.get('/habits', verifyToken, async (req, res) => {
+app.get('/api/habits', verifyToken, async (req, res) => {
   try {
     await connectDB();
     const habits = await Habit.find();
@@ -144,7 +144,7 @@ app.get('/habits', verifyToken, async (req, res) => {
   }
 });
 
-app.post('/habits', verifyToken, async (req, res) => {
+app.post('/api/habits', verifyToken, async (req, res) => {
   try {
     await connectDB();
 
@@ -165,7 +165,7 @@ app.post('/habits', verifyToken, async (req, res) => {
   }
 });
 
-app.put('/habits/:id/done', verifyToken, async (req, res) => {
+app.put('/api/habits/:id/done', verifyToken, async (req, res) => {
   try {
     await connectDB();
 
